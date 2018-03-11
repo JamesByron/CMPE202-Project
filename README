@@ -1,0 +1,32 @@
+Created By: James Byron
+Course: CMPE 202
+
+This repo contains the code and results files for the term project for CMPE 202.
+
+The machine learning code used in the client application was built with help from tutorials on the PyTorch Website:
+	PyTorch Website:  http://pytorch.org/
+	PyTorch Classification Tutorial: http://pytorch.org/tutorials/intermediate/char_rnn_classification_tutorial.html
+
+The simulator that I used can be downloaded from repository:
+	https://github.com/ChampSim
+
+When building the repository, first place the file
+	replacements/cramer.llc_repl
+into the directory "replacement" directory from the ChmampSim github repository.
+
+Next, download one or more trace files from the dropbox folder:
+	https://www.dropbox.com/sh/hh09tt8myuz0jbp/AACAS5zMWHL7coVuS-RbpUksa?dl=0
+Place the trace files in a new folder "trace" in the root diroctory of the ChampSim ropository.
+
+
+Build the simulator with the command
+	./build_champsim.sh bimodal no no cramer 1
+
+Run the simulations using the command:
+	./run.sh
+At the same time, open a separate terminal window and run the client python script using the command:
+	python3 client.py
+Press "t" to get the data to train the simulator.
+The simulator will repeat 5 times, and you can press "t" to collect more data to continue training or "l" to start learning based on the data already obtained.
+
+After training and learning completes, run the simulator script (run.sh) and press "e" to test the model.
