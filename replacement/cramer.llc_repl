@@ -1,0 +1,189 @@
+#include "cache.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <sys/types.h> 
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <linux/un.h>
+
+struct sockaddr_un address;
+int socket_fd, connection_fd;
+socklen_t address_length;
+//pid_t child;
+char buffer[1024];
+int n;
+int connection;
+char *stopstring;
+
+void error(char *msg)
+  {
+  perror(msg);
+  exit(1);
+  }
+
+// initialize replacement state
+void CACHE::llc_initialize_replacement()
+{
+    // Initialize server
+    socket_fd = socket(AF_UNIX, SOCK_STREAM, 0);
+    if (socket_fd < 0){
+      printf("socket() failed\n");
+      exit(1);
+    } 
+    unlink("/tmp/soc");
+    memset(&address, 0, sizeof(struct sockaddr_un));
+    address.sun_family = AF_UNIX;
+    snprintf(address.sun_path, UNIX_PATH_MAX, "/tmp/soc");
+    if (bind(socket_fd, (struct sockaddr *) &address, sizeof(struct sockaddr_un)) != 0)
+    {
+        printf("bind() failed\n");
+        exit(1);
+    }
+    if(listen(socket_fd, 5) != 0)
+    {
+        printf("listen() failed\n");
+        exit(1);
+    }
+    address_length = sizeof(address);
+    connection = (connection_fd = accept(socket_fd, (struct sockaddr *) &address, &address_length));
+    printf("successfully received a connection\n");
+}
+
+void sendOneValue(int get, uint8_t hit, uint32_t type, uint32_t set, uint32_t way, uint64_t ip, BLOCK **block) {
+    bzero(buffer,1024);
+    string tempString = "";
+    if (get) tempString = "Get";
+    string tempString2 = "Miss";
+    string TYPE_NAME;
+    if (type == LOAD)
+        TYPE_NAME = "LOAD";
+    else if (type == RFO)
+        TYPE_NAME = "RFO";
+    else if (type == PREFETCH)
+        TYPE_NAME = "PF";
+    else if (type == WRITEBACK)
+        TYPE_NAME = "WB";
+    else
+        assert(0);
+    if (hit) {
+        tempString2 = "Hit";
+        TYPE_NAME += "_HIT";
+        }
+    else
+        TYPE_NAME += "_MISS";
+
+    char getString[tempString.length()+1];
+    strcpy(getString, tempString.c_str()); 
+    char hitString[tempString2.length()+1]; 
+    strcpy(hitString, tempString2.c_str()); 
+    char typeString[TYPE_NAME.length()+1];
+    strcpy(typeString, TYPE_NAME.c_str()); 
+
+    snprintf(buffer, sizeof buffer, "%s,%s,%s,%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu*",getString,hitString,typeString,(unsigned long)set,(unsigned long)way,(unsigned long)ip,(unsigned long)block[set][0].lru,(unsigned long)block[set][1].lru,(unsigned long)block[set][2].lru,(unsigned long)block[set][3].lru,(unsigned long)block[set][4].lru,(unsigned long)block[set][5].lru,(unsigned long)block[set][6].lru,(unsigned long)block[set][7].lru,(unsigned long)block[set][8].lru,(unsigned long)block[set][9].lru,(unsigned long)block[set][10].lru,(unsigned long)block[set][11].lru,(unsigned long)block[set][12].lru,(unsigned long)block[set][13].lru,(unsigned long)block[set][14].lru,(unsigned long)block[set][15].lru);
+    n = write(connection_fd, buffer, strlen(buffer));
+}
+
+// find replacement victim
+uint32_t CACHE::llc_find_victim(uint32_t cpu, uint64_t instr_id, uint32_t set, const BLOCK *current_set, uint64_t ip, uint64_t full_addr, uint32_t type)
+{
+    //uint32_t replaceBlock = lru_victim(cpu, instr_id, set, current_set, ip, full_addr, type);
+    sendOneValue(1, 0, type, set, 0, ip, block);
+    bzero(buffer,1024);
+    n = read(connection_fd,buffer,1023);
+    unsigned long returnedLong = strtoul(buffer, &stopstring, 10);
+    uint32_t replaceBlock = (uint32_t)returnedLong;
+
+    //char str[(int)((ceil(log10(replaceBlock))+1)*sizeof(char))];
+    //if (n < 0) error("ERROR reading from socket");
+    //printf("Here is the message: %s\n", buffer);
+    //strcpy(buffer, "Hi back from the C world");
+    assert(set <= 2047);
+    assert(replaceBlock <= 15);
+    return replaceBlock;
+}
+
+// called on every cache hit and cache fill
+void CACHE::llc_update_replacement_state(uint32_t cpu, uint32_t set, uint32_t way, uint64_t full_addr, uint64_t ip, uint64_t victim_addr, uint32_t type, uint8_t hit)
+{
+    sendOneValue(0, hit, type, set, way, ip, block);
+    string TYPE_NAME;
+    if (type == LOAD)
+        TYPE_NAME = "LOAD";
+    else if (type == RFO)
+        TYPE_NAME = "RFO";
+    else if (type == PREFETCH)
+        TYPE_NAME = "PF";
+    else if (type == WRITEBACK)
+        TYPE_NAME = "WB";
+    else
+        assert(0);
+
+    if (hit)
+        TYPE_NAME += "_HIT";
+    else
+        TYPE_NAME += "_MISS";
+
+    if ((type == WRITEBACK) && ip)
+        assert(0);
+
+    // uncomment this line to see the LLC accesses
+    // cout << "CPU: " << cpu << "  LLC " << setw(9) << TYPE_NAME << " set: " << setw(5) << set << " way: " << setw(2) << way;
+    // cout << hex << " paddr: " << setw(12) << paddr << " ip: " << setw(8) << ip << " victim_addr: " << victim_addr << dec << endl;
+
+    // baseline LRU
+    if (hit && (type == WRITEBACK)) // writeback hit does not update LRU state
+        return;
+
+    return lru_update(set, way);
+}
+
+void CACHE::llc_replacement_final_stats()
+{
+    printf("Done! Closing the socket.");
+    bzero(buffer,1024);
+    strcpy(buffer, "Exit");
+    n = write(connection_fd, buffer, strlen(buffer));
+    close(socket_fd);
+}
+
+/*
+uint32_t CACHE::lru_victim(uint32_t cpu, uint64_t instr_id, uint32_t set, const BLOCK *current_set, uint64_t ip, uint64_t full_addr, uint32_t type)
+{
+    uint32_t way = 0;
+    exit(1);
+    // fill invalid line first
+    for (way=0; way<NUM_WAY; way++) {
+        if (block[set][way].valid == false) {
+
+            DP ( if (warmup_complete[cpu]) {
+            cout << "[" << NAME << "] " << __func__ << " instr_id: " << instr_id << " invalid set: " << set << " way: " << way;
+            cout << hex << " address: " << (full_addr>>LOG2_BLOCK_SIZE) << " victim address: " << block[set][way].address << " data: " << block[set][way].data;
+            cout << dec << " lru: " << block[set][way].lru << endl; });
+
+            break;
+        }
+    }
+
+    // LRU victim
+    if (way == NUM_WAY) {
+        for (way=0; way<NUM_WAY; way++) {
+            if (block[set][way].lru == NUM_WAY-1) {
+
+                DP ( if (warmup_complete[cpu]) {
+                cout << "[" << NAME << "] " << __func__ << " instr_id: " << instr_id << " replace set: " << set << " way: " << way;
+                cout << hex << " address: " << (full_addr>>LOG2_BLOCK_SIZE) << " victim address: " << block[set][way].address << " data: " << block[set][way].data;
+                cout << dec << " lru: " << block[set][way].lru << endl; });
+
+                break;
+            }
+        }
+    }
+
+    if (way == NUM_WAY) {
+        cerr << "[" << NAME << "] " << __func__ << " no victim! set: " << set << endl;
+        assert(0);
+    }
+
+    return way;
+}*/

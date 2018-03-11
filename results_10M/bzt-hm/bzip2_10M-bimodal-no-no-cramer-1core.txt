@@ -1,0 +1,60 @@
+
+*** ChampSim Multicore Out-of-Order Simulator ***
+
+Warmup Instructions: 1000000
+Simulation Instructions: 10000000
+Number of CPUs: 1
+LLC sets: 2048
+LLC ways: 16
+Off-chip DRAM Size: 4096 MB Channels: 1 Width: 64-bit Data Rate: 1600 MT/s
+
+CPU 0 runs /home/james/ChampSim/trace//bzip2_10M.trace.gz
+CPU 0 Bimodal branch predictor
+successfully received a connection
+
+Warmup complete CPU 0 instructions: 1000002 cycles: 565157 (Simulation time: 0 hr 0 min 27 sec) 
+
+*** Reached end of trace for Core: 0 Repeating trace: /home/james/ChampSim/trace//bzip2_10M.trace.gz
+Heartbeat CPU 0 instructions: 10000000 cycles: 15133379 heartbeat IPC: 0.660791 cumulative IPC: 0.617783 (Simulation time: 0 hr 10 min 40 sec) 
+Finished CPU 0 instructions: 10000000 cycles: 16072907 cumulative IPC: 0.622165 (Simulation time: 0 hr 11 min 1 sec) 
+
+CPU 0 Branch Prediction Accuracy: 89.2482% MPKI: 16.4455
+
+ChampSim completed all CPUs
+
+Region of Interest Statistics
+
+CPU 0 cumulative IPC: 0.622165 instructions: 10000000 cycles: 16072907
+L1D TOTAL     ACCESS:    2235282  HIT:    2015152  MISS:     220130
+L1D LOAD      ACCESS:    1541560  HIT:    1347472  MISS:     194088
+L1D RFO       ACCESS:     693722  HIT:     667680  MISS:      26042
+L1D PREFETCH  ACCESS:          0  HIT:          0  MISS:          0
+L1D WRITEBACK ACCESS:          0  HIT:          0  MISS:          0
+L1D PREFETCH  REQUESTED:          0  ISSUED:          0  USEFUL:          0  USELESS:          0
+L1I TOTAL     ACCESS:    2117920  HIT:    2117909  MISS:         11
+L1I LOAD      ACCESS:    2117920  HIT:    2117909  MISS:         11
+L1I RFO       ACCESS:          0  HIT:          0  MISS:          0
+L1I PREFETCH  ACCESS:          0  HIT:          0  MISS:          0
+L1I WRITEBACK ACCESS:          0  HIT:          0  MISS:          0
+L1I PREFETCH  REQUESTED:          0  ISSUED:          0  USEFUL:          0  USELESS:          0
+L2C TOTAL     ACCESS:     258117  HIT:     175989  MISS:      82128
+L2C LOAD      ACCESS:     194091  HIT:     128323  MISS:      65768
+L2C RFO       ACCESS:      26040  HIT:       9695  MISS:      16345
+L2C PREFETCH  ACCESS:          0  HIT:          0  MISS:          0
+L2C WRITEBACK ACCESS:      37986  HIT:      37971  MISS:         15
+L2C PREFETCH  REQUESTED:          0  ISSUED:          0  USEFUL:          0  USELESS:          0
+LLC TOTAL     ACCESS:     103484  HIT:       4611  MISS:      98873
+LLC LOAD      ACCESS:      65768  HIT:       2237  MISS:      63531
+LLC RFO       ACCESS:      16345  HIT:       1426  MISS:      14919
+LLC PREFETCH  ACCESS:          0  HIT:          0  MISS:          0
+LLC WRITEBACK ACCESS:      21371  HIT:        948  MISS:      20423
+LLC PREFETCH  REQUESTED:          0  ISSUED:          0  USEFUL:          0  USELESS:          0
+Major fault: 0 Minor fault: 500
+Done! Closing the socket.
+DRAM Statistics
+ CHANNEL 0
+ RQ ROW_BUFFER_HIT:      48397  ROW_BUFFER_MISS:      29905
+ DBUS_CONGESTED:      43211
+ WQ ROW_BUFFER_HIT:       8644  ROW_BUFFER_MISS:      12458  FULL:          0
+
+ AVG_CONGESTED_CYCLE: 13
