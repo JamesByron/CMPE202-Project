@@ -1,12 +1,5 @@
 #!/bin/bash
-echo 1 / 5 : bzip2_10M
-./run_champsim.sh bimodal-no-no-cramer-1core 1 10 bzip2_10M
-echo 2 / 5 : astar_313B
-./run_champsim.sh bimodal-no-no-cramer-1core 1 10 astar_313B
-echo 3 / 5 : bwaves_1609B
-./run_champsim.sh bimodal-no-no-cramer-1core 1 10 bwaves_1609B
-echo 4 / 5 : graph_analytics_10M
-./run_champsim.sh bimodal-no-no-cramer-1core 1 10 graph_analytics_10M
-echo 5 / 5 : h264ref_351B
-./run_champsim.sh bimodal-no-no-cramer-1core 1 10 h264ref_351B
-echo Done
+echo Project submission for James Byron
+echo My project is the tournament for cache replacement.
+echo I asked Dr. Renau abouw what files to submit, and he said that I should submit a pdf of slides that have all the details of my project.  Besides that pdf, I have also uploaded all the code for my project into my github repo.
+echo The repo is located at https://github.com/JamesByron/CMPE202-Project

@@ -23,10 +23,10 @@ Build the simulator with the command
 	./build_champsim.sh bimodal no no cramer 1
 
 Run the simulations using the command:
-	./run.sh
+	./run_project.sh
 At the same time, open a separate terminal window and run the client python script using the command:
 	python3 client.py
 Press "t" to get the data to train the simulator.
 The simulator will repeat 5 times, and you can press "t" to collect more data to continue training or "l" to start learning based on the data already obtained.
 
-After training and learning completes, run the simulator script (run.sh) and press "e" to test the model.
+After training and learning completes, run the simulator script (run_project.sh) and press "e" to test the model.
